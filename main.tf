@@ -21,3 +21,20 @@ resource "aws_security_group" "ssh_access" {
     Name = "ssh-access-sg"
   }
 }
+
+locals {
+  server_names = ["WebServer", "AppServer", "DBServer"]
+}
+
+resource "aws_instance" "servers" {
+  count         = length(local.server_names)
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_pair_name
+
+  vpc_security_group_ids = [aws_security_group.ssh_access.id]
+
+  tags = {
+    Name = local.server_names[count.index]
+  }
+}
